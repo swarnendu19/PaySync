@@ -1,6 +1,6 @@
 {
   "name": "paysync",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "module": "dist/index.mjs",
@@ -33,5 +33,5 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
-  }  
+  }
 }
