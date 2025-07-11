@@ -7,10 +7,9 @@ export class Razorpay extends PayFetch {
   }
 
   private getApiBaseUrl() {
-    if (this.options.sandbox) {
-      return "https://api.sandbox.razorpay.com";
-    }
-    return "https://api.razorpay.com";
+    return this.options.sandbox 
+      ? "https://api.sandbox.razorpay.com" 
+      : "https://api.razorpay.com";
   }
 
   private getKeyId() {
@@ -27,10 +26,9 @@ export class Razorpay extends PayFetch {
 
   async getAccessToken() {
     const url = `${this.getApiBaseUrl()}/v1/auth`;
+    const auth = Buffer.from(`${this.getKeyId()}:${this.getKeySecret()}`).toString('base64'); // Using Buffer for Node.js
 
-    const auth = btoa(`${this.getKeyId()}:${this.getKeySecret()}`);
-
-    const [response] = await this.jsonFetch<IRazorpayAuthResponse>(url, {
+    const [response, error] = await this.jsonFetch<IRazorpayAuthResponse>(url, {
       method: "POST",
       headers: {
         Authorization: `Basic ${auth}`,
@@ -39,13 +37,21 @@ export class Razorpay extends PayFetch {
       body: "grant_type=client_credentials",
     });
 
+    if (error) {
+      console.error('Failed to get access token:', error);
+      throw new Error('Failed to get access token');
+    }
+
     return response.access_token;
   }
 
   async createOrder(payload: IRazorpayPayload) {
     const accessToken = await this.getAccessToken();
 
-    const [res] = await this.jsonFetch<IRazorpayOrderResponse>(
+    // Log the payload for debugging
+    console.log('Creating order with payload:', payload);
+
+    const [res, error] = await this.jsonFetch<IRazorpayOrderResponse>(
       this.getApiOrderUrl(),
       {
         method: "POST",
@@ -57,7 +63,14 @@ export class Razorpay extends PayFetch {
       }
     );
 
-    if (!res.id) {
+    // Detailed error handling
+    if (error || !res || !res.id) {
+      console.error('Razorpay create order error:', error);
+      //@ts-ignore
+      if (res && res.error) {
+        //@ts-ignore
+        console.error('Error details from Razorpay:', res.error);
+      }
       throw new Error("Failed to create order");
     }
 
