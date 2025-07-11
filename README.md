@@ -12,7 +12,8 @@ PaySync is a robust TypeScript library designed to offer a unified interface for
 ## Providers
 
 - **Stripe:** (Checkout, Webhook).
-- **RazorPay:** (comming soon).
+- **RazorPay**.
+- **Paypal**
 
 ## Installation
 

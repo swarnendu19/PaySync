@@ -1,0 +1,5 @@
+---
+"paysync": patch
+---
+
+Razorpay Updated
