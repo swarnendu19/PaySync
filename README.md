@@ -44,6 +44,8 @@ const checkoutUrl = await stripe.generatePaymentURL(checkoutDetails);
 ## Webhook
 
 ```typescript
+import PaySync from "paysync";
+
 // Stripe
 const stripe = new PaySync.Stripe(process.env.STRIPE_SECRET_KEY!);
 
