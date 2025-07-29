@@ -9,25 +9,30 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
         with:
-          node-version: 16
-          registry-url: https://www.npmjs.com/package/paysync
+          # This makes Actions fetch all Git history so that Changesets can generate proper changelogs
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org/
+          cache: 'npm'
+
       - run: npm ci
 
-      - name: Create .npmrc file
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+      - name: Build packages
+        run: npm run build
 
-      - name: Install Changesets
-        run: npm install changesets
-
-      - name: Run Changesets and publish
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
         uses: changesets/action@v1
         with:
-          publish: npm
-          setupGitUser: true
-          createGithubReleases: true
+          # This expects you to have a script called release which does a build before calling changeset publish
+          publish: npm run release
+          title: "Release: Version Packages"
+          commit: "Release: Version Packages"
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
